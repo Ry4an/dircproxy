@@ -5,7 +5,7 @@
  * irc_server.c
  *  - Handling of servers connected to the proxy
  * --
- * @(#) $Id: irc_server.c,v 1.22 2000/09/27 16:45:32 keybuk Exp $
+ * @(#) $Id: irc_server.c,v 1.22.2.3 2000/10/16 12:25:39 keybuk Exp $
  *
  * This file is distributed according to the GNU General Public
  * License.  For full details, read the top of 'main.c' or the
@@ -332,7 +332,7 @@ static int _ircserver_gotmsg(struct ircproxy *p, const char *str) {
 
     /* Restore the user mode */
     if (p->modes)
-      ircserver_send_command(p, "MODE", "+%s", p->modes);
+      ircserver_send_command(p, "MODE", "%s +%s", p->nickname, p->modes);
 
     /* Restore the away message */
     if (p->awaymessage) {
@@ -602,8 +602,10 @@ static int _ircserver_gotmsg(struct ircproxy *p, const char *str) {
                           msg.src.hostname);
           irclog_msg(p, msg.params[0], tmp, "%s", str);
           free(tmp);
-        } else {
+        } else if (msg.src.name) {
           irclog_msg(p, msg.params[0], msg.src.name, "%s", str);
+        } else {
+          irclog_msg(p, msg.params[0], p->servername, "%s", str);
         }
       }
       free(str);
@@ -624,10 +626,12 @@ static int _ircserver_gotmsg(struct ircproxy *p, const char *str) {
 
           tmp = x_sprintf("%s!%s@%s", msg.src.name, msg.src.username,
                           msg.src.hostname);
-          irclog_notice(p, msg.params[0], tmp, str);
+          irclog_notice(p, msg.params[0], tmp, "%s", str);
           free(tmp);
+        } else if (msg.src.name) {
+          irclog_notice(p, msg.params[0], msg.src.name, "%s", str);
         } else {
-          irclog_notice(p, msg.params[0], msg.src.name, str);
+          irclog_notice(p, msg.params[0], p->servername, "%s", str);
         }
       }
       free(str);
