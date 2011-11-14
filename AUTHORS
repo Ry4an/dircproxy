@@ -16,6 +16,7 @@ Stephen Cope - Original Documentation
 Mike Taylor  - Lot of patch and help
 brendan at kublai.com - IPV6 Support
 Tilman Sauerbeck - Patch
+Ry4an Brase  - dns.c patches
 acklen, W8TVI and the folks on #dircproxy (freenode) - User support
 
 If you have contributed any major patches or enhancements, and you

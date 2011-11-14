@@ -45,7 +45,7 @@ struct dnschild {
   pid_t pid;
   int pipe;
 
-  const char *ip;
+  char ip[40];
 
   dns_fun_t function;
   void *boundto;
@@ -126,7 +126,10 @@ static int _dns_startrequest(void *boundto, dns_fun_t function, void *data,
   child->pipe = p[0];
   child->function = function;
   child->boundto = boundto;
-  child->ip = ip;
+  if (ip) {
+      strncpy(child->ip, ip, sizeof(child->ip));
+      child->ip[sizeof(child->ip) - 1] = '\0';
+  }
   child->data = data;
   child->next = dnschildren;
   dnschildren = child;
@@ -244,7 +247,9 @@ int dns_endrequest(pid_t pid, int status) {
 
   /* If DNS failed, but we were looking up an IP address, fill that */
   if (!ip && child->ip) {
-    strcpy(result.ip, child->ip);
+    debug("Copying in child ip: %s", child->ip);
+    strncpy(result.ip, child->ip, sizeof(result.ip));
+    result.ip[sizeof(result.ip) - 1] = '\0';
     ip = result.ip;
   }
 
